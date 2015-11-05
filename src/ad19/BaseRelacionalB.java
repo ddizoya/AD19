@@ -16,7 +16,7 @@ import oracle.jdbc.driver.OracleDriver;
 
 /**
  *
- * @author oracle
+ * @author ddizoya
  */
 public class BaseRelacionalB {
 
