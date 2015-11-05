@@ -32,7 +32,6 @@ public class BaseRelacionalB {
     Statement st;
     ResultSet rs;
 
-
     public BaseRelacionalB() {
         try {
             DriverManager.deregisterDriver(new OracleDriver());
@@ -55,13 +54,6 @@ public class BaseRelacionalB {
         st.executeUpdate(consulta);
 
     }
-    
-    private void RSmodificable() throws SQLException{
-        String consulta = "Select cod, descricion, prezo from " + tabla;
-        st = conectarse().createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
-        rs = st.executeQuery(consulta);
-    }
-    
 
     public void listar() throws SQLException {
         System.out.println(">>Se procede a consultar la tabla " + tabla);
@@ -73,11 +65,26 @@ public class BaseRelacionalB {
 
     }
 
+    private void recorrer() throws SQLException { //Método para recorrer el ResultSet. 
+        while (rs.next()) {
+            String cod = rs.getString("cod");
+            String des = rs.getString("descricion");
+            int prezo = rs.getInt("prezo");
+            System.out.println(cod + " " + des + " " + prezo);
+        }
+    }
+
+    private void RSmodificable() throws SQLException {
+        String consulta = "Select cod, descricion, prezo from " + tabla;
+        st = conectarse().createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+        rs = st.executeQuery(consulta);
+    }
+
     public void modificarDentroResultSet(String cod, int valor) throws SQLException {
         RSmodificable();
         while (rs.next()) {
             String aux = rs.getString("cod");
-            if (aux.equalsIgnoreCase(cod)) {  
+            if (aux.equalsIgnoreCase(cod)) {
                 rs.updateInt("prezo", valor); //Modificamos el valor de precio en la fila que cod=="p2"
                 rs.updateRow(); //Hacemos commit de los cambios realizados.
                 System.out.println("Tabla con los nuevos valores modificados: ");
@@ -86,49 +93,33 @@ public class BaseRelacionalB {
                 break;//Salimos del bucle;
             }
         }
-         recorrer(); //Usamos el método precreado que recorre los valor del RS y lo imprime.
+        recorrer(); //Usamos el método precreado que recorre los valor del RS y lo imprime.
 
     }
-    
-    public void inxerirRS(String cod, String des, int prezo) throws SQLException{
+
+    public void inxerirRS(String cod, String des, int prezo) throws SQLException {
         RSmodificable();
-        
+
         rs.moveToInsertRow(); //Iniciamos la inserción de la nueva fila.
         rs.updateString("cod", cod);
         rs.updateString("descricion", des);
         rs.updateInt("prezo", prezo);
         rs.insertRow(); //Commit de la nueva fila insertada.
-        
+
         System.err.println("Nuevo produtos insertado: ");
         listar(); //Listamos de nuevo todo el contenido de la tabla.
-        
-       
+
     }
-    
-    public void borrarProduto(String cod) throws SQLException{
+
+    public void borrarProduto(String cod) throws SQLException {
         RSmodificable();
-        while(rs.next()){
-            if (rs.getString("cod").equalsIgnoreCase(cod)){ //Si la fila tiene cod == "p3", borramos la fila. 
+        while (rs.next()) {
+            if (rs.getString("cod").equalsIgnoreCase(cod)) { //Si la fila tiene cod == "p3", borramos la fila. 
                 rs.deleteRow();
                 break;
             }
         }
         listar(); //Listamos de nuevo el contenido, y vemos que se ha borrado el produto p3
-    }
-    
-    
-    
-    
-    
- 
-    private void recorrer() throws SQLException { //Método para recorrer el ResultSet. 
-        while (rs.next()) {
-            String cod = rs.getString("cod");
-            String des = rs.getString("descricion");
-            int prezo = rs.getInt("prezo");
-            System.out.println(cod + " " + des + " " + prezo);
-        }
-   
     }
 
     public static void main(String[] args) {
